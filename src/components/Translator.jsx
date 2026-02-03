@@ -43,7 +43,12 @@ export default function Translator() {
     }, [text, sourceLang, targetLang, apiKey]);
 
     const handleTranslate = async () => {
-        if (!text || !apiKey) return;
+        if (!text || !apiKey) {
+            console.log('Skipping translation: Missing text or API key');
+            return;
+        }
+
+        console.log('Starting translation...', { text, sourceLang, targetLang });
         setIsLoading(true);
         setError('');
 
@@ -59,14 +64,27 @@ export default function Translator() {
 
         try {
             const response = await fetch('https://google-translate1.p.rapidapi.com/language/translate/v2', options);
+            console.log('Response status:', response.status);
+
             const data = await response.json();
+            console.log('Response data:', data);
+
             if (response.ok) {
-                setTranslatedText(data.data.translations[0].translatedText);
+                if (data.data?.translations?.[0]?.translatedText) {
+                    setTranslatedText(data.data.translations[0].translatedText);
+                } else {
+                    console.error('Unexpected response structure:', data);
+                    setError('Received unexpected format from API.');
+                }
             } else {
-                setError(data.message || 'Translation failed');
+                // Try to extract error message from common RapidAPI error formats
+                const msg = data.message || data.error || 'Translation failed via API';
+                console.error('API Error:', msg);
+                setError(typeof msg === 'string' ? msg : JSON.stringify(msg));
             }
         } catch (err) {
-            setError('Check Internet or API Key');
+            console.error('Fetch Fatal Error:', err);
+            setError('Network error: ' + err.message);
         } finally {
             setIsLoading(false);
         }
