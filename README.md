@@ -2,6 +2,8 @@
 
 A premium suite of developer tools built with React, Vite, and Tailwind CSS.
 
+[**Live Demo**](https://text-translator-app-indol.vercel.app/)
+
 ## Features
 
 ### 1. AI Translator
