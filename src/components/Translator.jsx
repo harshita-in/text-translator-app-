@@ -23,13 +23,24 @@ export default function Translator() {
     const [apiKey, setApiKey] = useState('');
     const [error, setError] = useState('');
 
-    // Debounce
+    // Load API Key from LocalStorage on mount
+    useEffect(() => {
+        const storedKey = localStorage.getItem('rapid-api-key');
+        if (storedKey) setApiKey(storedKey);
+    }, []);
+
+    // Save API Key to LocalStorage when it changes
+    useEffect(() => {
+        if (apiKey) localStorage.setItem('rapid-api-key', apiKey);
+    }, [apiKey]);
+
+    // Debounce Translation
     useEffect(() => {
         const timer = setTimeout(() => {
             if (text && apiKey) handleTranslate();
-        }, 1200);
+        }, 800); // Reduced delay for better UX
         return () => clearTimeout(timer);
-    }, [text, sourceLang, targetLang]);
+    }, [text, sourceLang, targetLang, apiKey]);
 
     const handleTranslate = async () => {
         if (!text || !apiKey) return;
